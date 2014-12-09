@@ -1,0 +1,29 @@
+<configure
+  xmlns="http://namespaces.zope.org/zope"
+  xmlns:browser="http://namespaces.zope.org/browser"
+  xmlns:plone="http://namespaces.plone.org/plone"
+  xmlns:zcml="http://namespaces.zope.org/zcml"
+  i18n_domain="rohberg.magazine">
+
+  <include package="plone.behavior" file="meta.zcml"/>
+
+  <plone:behavior
+    title="Header Images"
+    description="Adds images and image caption fields"
+    provides=".headerimages.IHeaderImages"
+    factory=".headerimages.HeaderImages"
+    for="plone.dexterity.interfaces.IDexterityContent"
+    marker=".headerimages.IHeaderImages"
+    />
+
+  <browser:viewlet
+    name="contentheaderimages"
+    for=".headerimages.IHeaderImages"
+    class=".viewlets.HeaderImagesViewlet"
+    manager="plone.app.layout.viewlets.interfaces.IAboveContentTitle"
+    template="headerimages.pt"
+    permission="zope2.View"
+    />
+
+
+</configure>

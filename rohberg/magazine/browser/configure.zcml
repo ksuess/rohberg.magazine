@@ -1,0 +1,13 @@
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    xmlns:browser="http://namespaces.zope.org/browser"
+    i18n_domain="rohberg.magazine">
+
+    <!-- Resource directory for stylesheets -->
+    <browser:resourceDirectory
+        name="rohberg.magazine.js-css"
+        directory="js-css"
+        layer="rohberg.magazine.interfaces.IThemeSpecific"
+        />
+  
+</configure>

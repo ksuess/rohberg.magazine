@@ -1,0 +1,18 @@
+<div class="headerImages"
+    tal:condition="view/available">
+         
+    <img
+         tal:condition="view/headerimagescale1"
+         tal:attributes="src string:${context/absolute_url}/@@images/headerimage1/headerimage;
+                         class string:headerImage  ${view/headerimageclass}"/>        
+    <img tal:define="scales context/@@images;
+                     headerimagescale python: scales.scale('headerimage2', scale='headerimage');"
+         tal:condition="headerimagescale"
+         tal:attributes="src string:${context/absolute_url}/@@images/headerimage2/headerimage;
+                         class string:headerImage  ${view/headerimageclass}"/>        
+    <img tal:define="scales context/@@images;
+                     headerimagescale python: scales.scale('headerimage3', scale='headerimage');"
+         tal:condition="headerimagescale"
+         tal:attributes="src string:${context/absolute_url}/@@images/headerimage3/headerimage;
+                         class string:headerImage ${view/headerimageclass}"/>
+</div>
