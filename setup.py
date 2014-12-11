@@ -27,6 +27,11 @@ setup(name='rohberg.magazine',
           'setuptools',
           # -*- Extra requirements: -*-
           'plone.app.contenttypes',
+          'html2text',
+          'plonetheme.onegov',
+          'ftw.subsite',
+          'ftw.contentpage',
+          'ftw.slider',
       ],
       entry_points="""
       # -*- Entry points: -*-
