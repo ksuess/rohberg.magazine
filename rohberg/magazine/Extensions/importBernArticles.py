@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
 # importBernArticles
 
+import random
 from datetime import date, datetime
 import os
 import codecs
+from zExceptions import BadRequest
+import html2text
 import simplejson as json
 # from zope.component import getMultiAdapter
 from Products.CMFCore.utils import getToolByName
@@ -11,6 +14,10 @@ import urllib2
 from StringIO import StringIO
 from plone.namedfile import NamedBlobFile, NamedBlobImage 
 from plone.app.textfield.value import RichTextValue
+from logging import getLogger
+
+
+logger = getLogger('importBernArticles')
 
 import pprint
 pp = pprint.PrettyPrinter(indent=3)
@@ -27,6 +34,13 @@ def importBernArticles(self):
     
     BernArticle: Seite
     """
+    
+    def invokeFactoryFunction(obj, ptype, id, title, description=""):
+        try:
+            obj.invokeFactory(ptype, id=id, title=title, description=description)
+        except BadRequest, e:
+            logger.error(str(e))
+            obj.invokeFactory(ptype, id=id+str(random.randint(1000000, 9999999)), title=title, description=description)
     
     def createObject(parent, item):
         """ legt Dexterity-Objekte an
@@ -47,27 +61,33 @@ def importBernArticles(self):
             mache Document zur Default-Page
         
         TODO
-        - BernArticleBlock Anzeige als Portlet unterscheiden
+        + BernArticleBlock Anzeige als Portlet unterscheiden
         + Workflow Stati unterscheiden (private, visible, published)
         + BernArticleBlockLink
         + Leadimages
         + nein! Seite in Navigation anzeigen oder nicht (Blöcke nicht)
-        - anmeldeformular-mittagstisch
+        + anmeldeformular-mittagstisch
+        ? BernArticleBlockTeaser
+        - BernArticleBlockEvent, BernArticleBlockNews
         """
-        if item['portal_type'] in ['Folder',]:
-            print "*** WARNING: Folder found"
+        # nicht migrieren:
+        if item['id'] in ['archiv-nicht-migrieren', ]:
+            return
+        if not item['portal_type'][:4]== 'Bern':
+            print "*** WARNING: no BernArticle"
             return
         elif item['portal_type'] in ['BernArticle',]:
-            parent.invokeFactory('Folder', id=item['id'], title=item['title'], description=item['description'])
+            invokeFactoryFunction(parent, 'Folder', id=item['id'], title=item['title'], description=item['description'])
             folder1 = getattr(parent, item['id'], None)
             # print "[el in item['children'] if el['portal_type']!='BernArticle'] ", item['url']
             # print [el['portal_type'] for el in item['children'] if el['portal_type']!='BernArticle']
             if [el['portal_type'] for el in item['children'] if el['portal_type']!='BernArticle']: # Es existieren Blöcke
                 # print "Es EXISTIEREN Blöcke für ", item['url']
-                folder1.invokeFactory('Folder', id='blocks', title=item['title'], description=item['description'])
+                invokeFactoryFunction(folder1, 'Folder', id='blocks', title=item['title'], description=item['description'])
                 folder2 = getattr(folder1, 'blocks')
-                folder2.invokeFactory('Document', id=item['id'], title=item['title'], description=item['description'])
+                invokeFactoryFunction(folder2, 'Document', id=item['id'], title=item['title'], description=item['description'])
                 document = getattr(folder2, item['id'])
+                # TODO: safe html, keine inline Bilder!
                 document.text = RichTextValue(unicode(item['text']), 'text/html', 'text/x-html-safe', 'utf-8')
                 for child in item['children']:
                     # print "child: ", child['url'], " ", child['portal_type']
@@ -79,7 +99,7 @@ def importBernArticles(self):
                 folder1.setDefaultPage('blocks')
             else: # Es existieren keine Blöcke
                 # print "Es existieren KEINE Blöcke für ", item['url']
-                folder1.invokeFactory('Document', id=item['id'], title=item['title'], description=item['description'])
+                invokeFactoryFunction(folder1, 'Document', id=item['id'], title=item['title'], description=item['description'])
                 document = getattr(folder1, item['id'])
                 document.text = RichTextValue(unicode(item['text']), 'text/html', 'text/x-html-safe', 'utf-8')
                 folder1.setDefaultPage(item['id'])
@@ -87,7 +107,6 @@ def importBernArticles(self):
                     createObject(folder1, child)  
             # Bilder anlegen
             for idx,val in enumerate(item['images'].values()):
-                # print "url image ", val
                 if val:
                     response = urllib2.urlopen(val)
                     data = response.read()
@@ -106,30 +125,12 @@ def importBernArticles(self):
         elif item['portal_type'] in ['BernArticleBlock']:
             if not item['text']: # mehrere Bilder
                 pass
-                # if item['review_state']=='private':
-                #     myid = item['id']+'-images'
-                #     parent.invokeFactory('Folder', id=myid, title='Images')
-                #     folder = getattr(parent, myid, None)
-                # else:
-                #     folder = parent
-                # for idx,val in enumerate(item['images'].values()):
-                #     # print "url image ", val
-                #     if val:
-                #         response = urllib2.urlopen(val)
-                #         data = response.read()
-                #         content_type= response.info().getheader('Content-Type')
-                #         filename = u"image"+str(idx+1)+"-"+item['id']
-                #         image = NamedBlobImage(data, content_type, filename)
-                #         folder.invokeFactory("Image", id=filename, title=parent.Title(), image=image)
-                #         response.close()
             else:
-                # print "Block mit Text ", item['url'], " erstellt in ", parent
-                myid = parent.id + "-" + item['id']
-                parent.invokeFactory('Document', id=myid, title=item['title'], description=item['description'])
+                myid = item['id'] # parent.id + "-" + item['id']
+                invokeFactoryFunction(parent, 'Document', id=myid, title=item['title'], description=item['description'])
                 document = getattr(parent, myid)
                 document.text = RichTextValue(unicode(item['text']), 'text/html', 'text/x-html-safe', 'utf-8')
                 for idx,val in enumerate(item['images'].values()):
-                    # print "url image ", val
                     if val:
                         response = urllib2.urlopen(val)
                         data = response.read()
@@ -143,62 +144,73 @@ def importBernArticles(self):
                         else:
                             document.headerimage3 = image
                         response.close()
-                
-            # print "BernArticleBlock ", item['url']
         elif item['portal_type'] in ['BernArticleBlockFile']:
             response = urllib2.urlopen(item['url']+"/file")
-            # print "BernArticleBlockFile ID und URL %s  %s " % (unicode(item['id']),item['url'])
             data = response.read()
             content_type= response.info().getheader('Content-Type')
             filename = "." in item['id'] and unicode(item['id']) or  item['id']+"."+unicode(content_type.split("/")[1])
             file = NamedBlobFile(data, content_type, filename) #, "text/html", u"text.html")
-            parent.invokeFactory('File', id=item['id'], title=item['title'], description=item['description'], file=file)
-            fl = getattr(parent, item['id'])
+            txt = html2text.html2text(item['text'])
+            # logger.info("html2text.html2text(item['text']) " + txt)
+            description = item['description'] + " - " + txt
+            invokeFactoryFunction(parent, 'File', id=item['id'], title=item['title'], description=description)
+            fileobj = parent[item['id']]
+            fileobj.file=file
             response.close()
         elif item['portal_type'] in ['BernArticleBlockLink']:
-            parent.invokeFactory('Link', id=item['id'], title=item['title'], description=item['description'])
+            invokeFactoryFunction(parent, 'Link', id=item['id'], title=item['title'], description=item['description'])
             linkobj = getattr(parent, item['id'])
             linkobj.remoteUrl = item['remoteUrl']
+                
         else:
             print "*** WARNING: portal_type not found: ", item['portal_type'], item['url']
             return
         if item['review_state']=='private':
             if "document" in locals():
                 wf_tool.doActionFor(document, 'retract')
-            else:
-                print "no document created for ", str(item)
         
     
     wf_tool = getToolByName(self, 'portal_workflow')
     now = datetime.now().strftime("%Y%m%d%H%M%S")
     print "*** importBernArticles ", now
     print "root ", self
-    if not self.portal_type=="Folder":
-        return
+    if not (self.portal_type=="Folder" or self.portal_type=="Plone Site"):
+        return "Please switch to folder."
     rootid = "import-"+now # Es wird ein Folder mit dieser ID erstellt und alles importierte hier erstellt
-    # rootid = "import-urdorf"
-
-    url = 'http://127.0.0.1:8080/Plone/moosmatt/exportBernArticles'
-    url = 'http://127.0.0.1:8080/Plone/moosmatt/projekte-und-veranstaltungen/archiv-2013-14/exportBernArticles'
-    # url = 'http://127.0.0.1:8080/Plone/moosmatt/lernen/exportBernArticles'
-    # url = 'http://127.0.0.1:8080/Plone/moosmatt/lernen/lernpartnerschaften/exportBernArticles'
-    f = urllib2.urlopen(url)
-    exp = f.read()
-    # print exp
-    result = json.loads(exp)
-    f.close()
-    # pp.pprint(result)
-    
+    rootid = "import-urdorf"
     # Bevor ein neuer Import-Folder erstellt wird, erst den löschen, der die selbe ID hat.
     if hasattr(self, rootid):
         self.manage_delObjects([rootid])
     self.invokeFactory('Folder', id=rootid, title=rootid)
     importfolder = getattr(self, rootid, None)
+        
+    navitems = ['home','behoerde','allgemein','schulen','bahnhofstrasse','embri','feld','copy_of_zentrum','moosmatt',
+'weihermatt',
+'zentrum',
+'kindergarten',
+'mittagstisch',
+'kooperationsschule',
+'intern',
+'forum',
+'diskussionen',
+'pendent',]
+    # navitems = navitems[2:3]
+    for navitem in navitems:
+        url = 'http://127.0.0.1:8080/Plone/%s/exportBernArticles' % navitem
+        f = urllib2.urlopen(url)
+        exp = f.read()
+        # print exp
+        result = json.loads(exp)
+        f.close()
+        # pp.pprint(result)
+            
+        print "import from ", dict(result)['url']
+        createObject(importfolder, result)
     
-    print "import from ", dict(result)['url']
-    createObject(importfolder, result)
-    
-    msg = u"importBernArticles done for " + url + " at " + datetime.now().strftime("%Y%m%d%H%M%S")
+        msg = u"importBernArticles done for " + url + " at " + datetime.now().strftime("%Y%m%d%H%M%S")
+        print msg
+
+    msg = u"importBernArticles done for " + str(navitems) + " at " + datetime.now().strftime("%Y%m%d%H%M%S")
     print msg
     return msg
     
