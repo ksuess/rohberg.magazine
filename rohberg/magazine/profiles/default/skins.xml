@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<object name="portal_skins" allow_any="False" cookie_persistence="False">
+
+ <object name="rohberg_magazine_plone_templates"
+    meta_type="Filesystem Directory View"
+    directory="rohberg.magazine:skins/rohberg_magazine_plone_templates"/>
+    
+    <skin-path name="*" based-on="OneGov Theme">
+      <layer name="rohberg_magazine_plone_templates"
+         insert-after="custom"/>
+     </skin-path>
+
+</object>

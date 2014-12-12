@@ -11,5 +11,11 @@ $(document).ready(function() {
             urlmatch: 'headerimage$',
             urlreplace: 'large'
             });
+    $('div.photoAlbumEntry a')
+        .prepOverlay({
+            subtype: 'image',
+            urlmatch: 'view$',
+            urlreplace: '@@images/image/large'
+            });   
     
 });
