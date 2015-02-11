@@ -1,5 +1,6 @@
 <div class="headerImages"
     tal:condition="view/available">
+    <!-- headerimages.pt -->
          
     <img
          tal:condition="view/headerimagescale1"

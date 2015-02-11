@@ -33,6 +33,8 @@ def importBernArticles(self):
     """ Import
     
     BernArticle: Seite
+    
+    aufrufen mit  http://127.0.0.1:10380/schuleurdorf/importBernArticles
     """
     
     def invokeFactoryFunction(obj, ptype, id, title, description=""):
@@ -67,22 +69,23 @@ def importBernArticles(self):
         + Leadimages
         + nein! Seite in Navigation anzeigen oder nicht (Blöcke nicht)
         + anmeldeformular-mittagstisch
-        ? BernArticleBlockTeaser
+        + BernArticleBlockTeaser
         - BernArticleBlockEvent, BernArticleBlockNews
+        - ATFolder
         """
         # nicht migrieren:
         if item['id'] in ['archiv-nicht-migrieren', ]:
             return
-        if not item['portal_type'][:4]== 'Bern':
-            print "*** WARNING: no BernArticle"
-            return
-        elif item['portal_type'] in ['BernArticle',]:
+        # if not item['portal_type'][:4] == 'Bern':
+        #     print "*** WARNING: no BernArticle, no Folder"
+        #     return
+        elif item['portal_type'] in ['BernArticle', 'Folder']:
             invokeFactoryFunction(parent, 'Folder', id=item['id'], title=item['title'], description=item['description'])
             folder1 = getattr(parent, item['id'], None)
             # print "[el in item['children'] if el['portal_type']!='BernArticle'] ", item['url']
             # print [el['portal_type'] for el in item['children'] if el['portal_type']!='BernArticle']
-            if [el['portal_type'] for el in item['children'] if el['portal_type']!='BernArticle']: # Es existieren Blöcke
-                # print "Es EXISTIEREN Blöcke für ", item['url']
+            if [el['portal_type'] for el in item['children'] if el['portal_type'][:16]=='BernArticleBlock']: # Es existieren Blöcke
+                print "Es EXISTIEREN Blöcke für ", item['url']
                 invokeFactoryFunction(folder1, 'Folder', id='blocks', title=item['title'], description=item['description'])
                 folder2 = getattr(folder1, 'blocks')
                 invokeFactoryFunction(folder2, 'Document', id=item['id'], title=item['title'], description=item['description'])
@@ -98,7 +101,7 @@ def importBernArticles(self):
                 folder2.setLayout("folder_full_view")
                 folder1.setDefaultPage('blocks')
             else: # Es existieren keine Blöcke
-                # print "Es existieren KEINE Blöcke für ", item['url']
+                print "Es existieren KEINE Blöcke für ", item['url']
                 invokeFactoryFunction(folder1, 'Document', id=item['id'], title=item['title'], description=item['description'])
                 document = getattr(folder1, item['id'])
                 document.text = RichTextValue(unicode(item['text']), 'text/html', 'text/x-html-safe', 'utf-8')
@@ -150,9 +153,10 @@ def importBernArticles(self):
             content_type= response.info().getheader('Content-Type')
             filename = "." in item['id'] and unicode(item['id']) or  item['id']+"."+unicode(content_type.split("/")[1])
             file = NamedBlobFile(data, content_type, filename) #, "text/html", u"text.html")
-            txt = html2text.html2text(item['text'])
+            txt = html2text.html2text(item['text']).strip()
             # logger.info("html2text.html2text(item['text']) " + txt)
-            description = item['description'] + " - " + txt
+            description = item['description'].strip()
+            description = description + ((description and txt) and " - " or "") + txt
             invokeFactoryFunction(parent, 'File', id=item['id'], title=item['title'], description=description)
             fileobj = parent[item['id']]
             fileobj.file=file
@@ -177,13 +181,13 @@ def importBernArticles(self):
     if not (self.portal_type=="Folder" or self.portal_type=="Plone Site"):
         return "Please switch to folder."
     rootid = "import-"+now # Es wird ein Folder mit dieser ID erstellt und alles importierte hier erstellt
-    rootid = "import-urdorf"
+    # rootid = "import-urdorf"
     # Bevor ein neuer Import-Folder erstellt wird, erst den löschen, der die selbe ID hat.
     if hasattr(self, rootid):
         self.manage_delObjects([rootid])
     self.invokeFactory('Folder', id=rootid, title=rootid)
     importfolder = getattr(self, rootid, None)
-        
+    
     navitems = ['home','behoerde','allgemein','schulen','bahnhofstrasse','embri','feld','copy_of_zentrum','moosmatt',
 'weihermatt',
 'zentrum',
@@ -193,10 +197,13 @@ def importBernArticles(self):
 'intern',
 'forum',
 'diskussionen',
-'pendent',]
-    # navitems = navitems[2:3]
+'pendent',
+'links']
+    # Debug
+    # navitems = ['links']
     for navitem in navitems:
         url = 'http://127.0.0.1:8080/Plone/%s/exportBernArticles' % navitem
+        print "url ", url
         f = urllib2.urlopen(url)
         exp = f.read()
         # print exp
@@ -210,8 +217,9 @@ def importBernArticles(self):
         msg = u"importBernArticles done for " + url + " at " + datetime.now().strftime("%Y%m%d%H%M%S")
         print msg
 
-    msg = u"importBernArticles done for " + str(navitems) + " at " + datetime.now().strftime("%Y%m%d%H%M%S")
+    msg = u"***importBernArticles done for " + str(navitems) + " at " + datetime.now().strftime("%Y%m%d%H%M%S")
     print msg
+    print
     return msg
     
 

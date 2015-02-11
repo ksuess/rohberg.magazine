@@ -18,11 +18,13 @@ class HeaderImagesViewlet(ViewletBase):
         self.headerimagescale1 = scales.scale('headerimage1', scale='headerimage')
         self.headerimagescale2 = scales.scale('headerimage2', scale='headerimage')
         self.headerimagescale3 = scales.scale('headerimage3', scale='headerimage')
-        if self.headerimagescale1 and self.headerimagescale2 and self.headerimagescale3:
+        his = [self.headerimagescale1, self.headerimagescale2, self.headerimagescale3]
+        his = [hi for hi in his if hi]
+        if len(his)==3:
             self.headerimageclass = 'headerImage3'
-        elif self.headerimagescale1 and self.headerimagescale2 :
+        elif len(his)==2 :
             self.headerimageclass = 'headerImage2'
-        elif self.headerimagescale1 :
+        elif len(his)==1:
             self.headerimageclass = 'headerImage1'
         else:
             self.headerimageclass = ''

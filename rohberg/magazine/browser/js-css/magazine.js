@@ -16,6 +16,6 @@ $(document).ready(function() {
             subtype: 'image',
             urlmatch: 'view$',
             urlreplace: '@@images/image/large'
-            });   
+            });
     
 });
