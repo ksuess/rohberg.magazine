@@ -10,7 +10,7 @@ class HeaderImagesViewlet(ViewletBase):
 
     def update(self):
         self.context = IHeaderImages(self.context)
-        self.available = True if self.context.headerimage1 else False
+        self.available = self.context.headerimage1 and True or False
         if INewsItem.providedBy(self.context):
             self.available = False
 

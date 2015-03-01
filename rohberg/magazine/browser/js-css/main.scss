@@ -5,6 +5,9 @@ h1, h2, h3 {
 h1 {
     font-size: 24px;
 }
+h2.tileHeadline {
+    margin: 0.5em 0;
+}
 
 body.template-folder_full_view {
     .headline {
@@ -14,6 +17,7 @@ body.template-folder_full_view {
 
 div.headerImages {
     margin-right: -5px;
+    margin-bottom: 1em;
     overflow: hidden;
     -moz-box-sizing: border-box;
     box-sizing: border-box;
@@ -55,7 +59,18 @@ color: red;
 div.documentDescription {
     margin-bottom: 1em;
 }
+div.newsImageContainer {
+    float: left;
+    margin-right: 1em;
+}
 
+p.tileBody {
+    margin-bottom: 0.3em;
+}
+body.template-folder_summary_view img.tileImage {
+    float: left;
+    margin-right: 1em;
+}
 
 /* 
     -moz-box-sizing: border-box;
