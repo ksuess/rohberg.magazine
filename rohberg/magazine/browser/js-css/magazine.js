@@ -18,4 +18,8 @@ $(document).ready(function() {
             urlreplace: '@@images/image/large'
             });
     
+
+    // Icons
+    $("a.url").prev('img').hide();
+            
 });
