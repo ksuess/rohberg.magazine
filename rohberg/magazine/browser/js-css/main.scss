@@ -15,6 +15,12 @@ body.template-folder_full_view {
     }
 }
 
+.image-left { float: left; clear: both; margin: 0.5em 1em 0.5em 0px; border: 0.4pt solid Black; }
+.image-inline { float: none; }
+.image-right { float: right; clear: both; margin: 0.5em; border: 0.4pt solid Black; }
+dd.image-caption { text-align: left; padding: 0px; margin: 0px; }
+dl.captioned { padding: 0.8em; }
+
 div.headerImages {
     margin-right: -5px;
     margin-bottom: 1em;
@@ -42,6 +48,7 @@ div.headerImages {
 div.overlay-image  {
     width: auto !important;
 }
+
 .galleria-info-text {
     opacity: 0.5;
     filter: alpha(opacity=50); /* For IE8 and earlier */
