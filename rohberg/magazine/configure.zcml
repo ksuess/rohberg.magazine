@@ -20,4 +20,6 @@
   <include package=".browser" />
   <include file="skins.zcml" />
   
+  <adapter factory=".subjects.SubjectsFieldWidget" />
+  
 </configure>
