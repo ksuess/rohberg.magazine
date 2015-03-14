@@ -39,6 +39,9 @@ div.headerImages {
         width: 33.333%;
     }
 }
+div.overlay-image  {
+    width: auto !important;
+}
 .galleria-info-text {
     opacity: 0.5;
     filter: alpha(opacity=50); /* For IE8 and earlier */
@@ -70,6 +73,10 @@ p.tileBody {
 body.template-folder_summary_view img.tileImage {
     float: left;
     margin-right: 1em;
+}
+
+input[type='text'].datetime-widget {
+    width: auto;
 }
 
 /* 

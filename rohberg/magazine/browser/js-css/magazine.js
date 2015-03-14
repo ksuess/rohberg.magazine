@@ -9,7 +9,7 @@ $(document).ready(function() {
         .prepOverlay({
             subtype: 'image',
             urlmatch: 'headerimage$',
-            urlreplace: 'large'
+            urlreplace: 'headerimage'
             });
     $('div.photoAlbumEntry a')
         .prepOverlay({
