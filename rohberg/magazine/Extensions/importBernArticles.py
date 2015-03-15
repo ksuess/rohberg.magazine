@@ -126,7 +126,7 @@ def importBernArticles(self):
             if item['review_state']=='private':
                 wf_tool.doActionFor(folder1, 'retract')
         elif item['portal_type'] in ['BernArticleBlock']:
-            if not item['text']: # mehrere Bilder
+            if False: #not item['text']: # mehrere Bilder
                 pass
             else:
                 myid = item['id'] # parent.id + "-" + item['id']
@@ -200,7 +200,8 @@ def importBernArticles(self):
 'pendent',
 'links']
     # Debug
-    # navitems = ['links']
+    navitems = ['zentrum', ]
+    navitems = ['bahnhofstrasse/berichte-aus-dem-schulhaus-bahnhofstrasse/archiv-bahnhofsstrasse', 'moosmatt/archiv-moosmatt']
     for navitem in navitems:
         url = 'http://127.0.0.1:8080/Plone/%s/exportBernArticles' % navitem
         print "url ", url
