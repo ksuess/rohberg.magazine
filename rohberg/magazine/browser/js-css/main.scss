@@ -90,3 +90,17 @@ input[type='text'].datetime-widget {
     -moz-box-sizing: border-box;
     box-sizing: border-box;
 */
+
+#portal-globalnav ul.flyoutChildren li {
+    position: relative;
+}
+#portal-globalnav li.level1 ul.flyoutChildren {
+    margin-left: 10em;
+    margin-top: -2em;
+}
+#portal-globalnav ul.flyoutChildren li.level1 li.directLink {
+    display: none;
+}
+#portal-globalnav ul.flyoutChildren li.level1 li.directLink + li {
+    border: none;
+}
