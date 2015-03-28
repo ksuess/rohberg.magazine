@@ -97,6 +97,7 @@ input[type='text'].datetime-widget {
 #portal-globalnav li.level1 ul.flyoutChildren {
     margin-left: 10em;
     margin-top: -2em;
+    z-index: 1000;
 }
 #portal-globalnav ul.flyoutChildren li.level1 li.directLink {
     display: none;
