@@ -15,9 +15,21 @@ class HeaderImagesViewlet(ViewletBase):
             self.available = False
 
         scales = self.context.restrictedTraverse('@@images')
-        self.headerimagescale1 = scales.scale('headerimage1', scale='headerimage')
-        self.headerimagescale2 = scales.scale('headerimage2', scale='headerimage')
-        self.headerimagescale3 = scales.scale('headerimage3', scale='headerimage')
+        try:
+            self.headerimagescale1 = scales.scale('headerimage1', scale='headerimage')
+        except Exception, e:
+            print str(e)
+            self.headerimagescale1 = None
+        try:
+            self.headerimagescale2 = scales.scale('headerimage2', scale='headerimage')
+        except Exception, e:
+            print str(e)
+            self.headerimagescale2 = None
+        try:
+            self.headerimagescale3 = scales.scale('headerimage3', scale='headerimage')
+        except Exception, e:
+            print str(e)
+            self.headerimagescale3 = None
         his = [self.headerimagescale1, self.headerimagescale2, self.headerimagescale3]
         his = [hi for hi in his if hi]
         if len(his)==3:
