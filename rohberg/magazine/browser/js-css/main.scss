@@ -54,6 +54,9 @@ div.overlay-image  {
     filter: alpha(opacity=50); /* For IE8 and earlier */
 }
 
+#portal-globalnav li.selected {
+    margin-bottom: 1em;
+}
 #portal-globalnav > li > .wrapper a {
     font-size: 14px !important;
 }
@@ -63,6 +66,12 @@ dl.portletRecent {
     margin-top: 2em;
 }
 a.state-private {
+color: red;
+}
+li.state-private,
+li.state-private a,
+li.state-private a:hover,
+li.state-private a:visited {
 color: red;
 }
 
@@ -104,4 +113,8 @@ input[type='text'].datetime-widget {
 }
 #portal-globalnav ul.flyoutChildren li.level1 li.directLink + li {
     border: none;
+}
+
+body.template-quickedit .field {
+   clear: none;
 }
