@@ -3,6 +3,12 @@ import os
 
 version = '1.0'
 
+tests_require = [
+    'ftw.builder',
+    'ftw.testing [splinter]',
+    'plone.app.testing',
+    ]
+
 setup(name='rohberg.magazine',
       version=version,
       description="Illustration of dexterity types and related",
@@ -32,7 +38,10 @@ setup(name='rohberg.magazine',
           'ftw.subsite',
           'ftw.contentpage',
           'ftw.slider',
+          'collective.z3cform.widgets',
       ],
+      tests_require=tests_require,
+      extras_require=dict(tests=tests_require),
       entry_points="""
       # -*- Entry points: -*-
 
